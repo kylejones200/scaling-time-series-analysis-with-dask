@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 
 
-pip install dask[complete]
+# pip install dask[complete]
 
 
 # Load a large time series dataset
