@@ -1,0 +1,13 @@
+data:
+  seed: 42
+  freq: MS
+model:
+  alpha: 0.06
+output:
+  figures_dir: images
+  figure_format: png
+  figure_dpi: 100
+  font_family: serif
+  figsize:
+  - 10
+  - 5

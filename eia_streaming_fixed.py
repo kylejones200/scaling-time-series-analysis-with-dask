@@ -6,7 +6,24 @@ from collections import deque
 import statsmodels.api as sm
 from sklearn.metrics import mean_absolute_error
 
-np.random.seed(42)
+import logging
+import yaml
+
+def load_config(config_path=None):
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = Path(__file__).parent / 'config.yaml'
+    if not config_path.exists():
+        return {}
+    with open(config_path) as _f:
+        return _yaml.safe_load(_f) or {}
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+np.random.seed(config.get('data', {}).get('seed', 42))
 
 plt.rcParams.update({'font.family': 'serif','axes.spines.top': False,'axes.spines.right': False,'axes.linewidth': 0.8})
 
@@ -47,7 +64,7 @@ def main():
 
     ytrue_s = pd.Series(ytrue, index=pd.to_datetime(times))
     yhat_s = pd.Series(yhat, index=pd.to_datetime(times))
-    print("Online one-step MAE:", mean_absolute_error(ytrue_s.values, yhat_s.values))
+    logger.error("Online one-step MAE:", mean_absolute_error(ytrue_s.values, yhat_s.values))
 
     # Tufte-style focus: history 2024, vertical line at 2025-01-01, Jan–Aug 2025 actuals vs forecast
     start_2024 = pd.Period('2024-01', freq='M').start_time + pd.offsets.MonthBegin(0)
@@ -69,7 +86,7 @@ def main():
     upper = f + 1.96 * sigma
     lower = f - 1.96 * sigma
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [10, 5])))
     ax.plot(y_hist.index, y_hist.values, color="#888888", lw=1.5)
     ax.axvline(jan_2025, color="#666666", linestyle="--", lw=1)
     ax.plot(y_act.index, y_act.values, color="#444444", lw=1.8)
