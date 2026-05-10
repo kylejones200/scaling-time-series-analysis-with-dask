@@ -43,7 +43,7 @@ def load_eia_series(csv_path: str, freq: str = "MS") -> pd.Series:
     return out.sort_values('date').set_index('date')['value'].asfreq(freq)
 
 
-def main():
+def main(plot: bool = False):
     csv_path = "Net_generation_United_States_all_sectors_monthly.csv"
     s = load_eia_series(csv_path, freq="MS").astype(float)
 
@@ -86,35 +86,36 @@ def main():
     upper = f + 1.96 * sigma
     lower = f - 1.96 * sigma
 
-    fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [10, 5])))
-    ax.plot(y_hist.index, y_hist.values, color="#888888", lw=1.5)
-    ax.axvline(jan_2025, color="#666666", linestyle="--", lw=1)
-    ax.plot(y_act.index, y_act.values, color="#444444", lw=1.8)
-    if len(f):
-        ax.fill_between(f.index, lower.values, upper.values, color="#000000", alpha=0.06, linewidth=0)
-        ax.plot(f.index, f.values, color="#000000", lw=2.0)
+    if plot:
+        fig, ax = plt.subplots(figsize=tuple(config.get('output', {}).get('figsize', [10, 5])))
+        ax.plot(y_hist.index, y_hist.values, color="#888888", lw=1.5)
+        ax.axvline(jan_2025, color="#666666", linestyle="--", lw=1)
+        ax.plot(y_act.index, y_act.values, color="#444444", lw=1.8)
+        if len(f):
+            ax.fill_between(f.index, lower.values, upper.values, color="#000000", alpha=0.06, linewidth=0)
+            ax.plot(f.index, f.values, color="#000000", lw=2.0)
 
-    from matplotlib.ticker import MaxNLocator, StrMethodFormatter
-    ax.yaxis.set_major_locator(MaxNLocator(4))
-    ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.grid(False)
+        from matplotlib.ticker import MaxNLocator, StrMethodFormatter
+        ax.yaxis.set_major_locator(MaxNLocator(4))
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.0f}'))
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.grid(False)
 
     # Staggered end labels to reduce overlap
-    y_min, y_max = (min(s.min(), f.min()) if len(f) else s.min()), (max(s.max(), f.max()) if len(f) else s.max())
-    yrng = max(1.0, y_max - y_min)
-    if len(y_hist):
-        ax.annotate('History (2024)', xy=(y_hist.index[-1], y_hist.values[-1]), xytext=(6, -0.02*yrng), textcoords='offset points', fontsize=9, va='center', ha='left', color='#666666', clip_on=False)
-    if len(y_act):
-        ax.annotate('Actual (Jan–Aug 2025)', xy=(y_act.index[-1], y_act.values[-1]), xytext=(6, 0.02*yrng), textcoords='offset points', fontsize=9, va='center', ha='left', color='#444444', clip_on=False)
-    if len(f):
-        ax.annotate('Forecast', xy=(f.index[-1], f.values[-1]), xytext=(6, 0), textcoords='offset points', fontsize=9, va='center', ha='left', color='#000000', clip_on=False)
+        y_min, y_max = (min(s.min(), f.min()) if len(f) else s.min()), (max(s.max(), f.max()) if len(f) else s.max())
+        yrng = max(1.0, y_max - y_min)
+        if len(y_hist):
+            ax.annotate('History (2024)', xy=(y_hist.index[-1], y_hist.values[-1]), xytext=(6, -0.02*yrng), textcoords='offset points', fontsize=9, va='center', ha='left', color='#666666', clip_on=False)
+        if len(y_act):
+            ax.annotate('Actual (Jan–Aug 2025)', xy=(y_act.index[-1], y_act.values[-1]), xytext=(6, 0.02*yrng), textcoords='offset points', fontsize=9, va='center', ha='left', color='#444444', clip_on=False)
+        if len(f):
+            ax.annotate('Forecast', xy=(f.index[-1], f.values[-1]), xytext=(6, 0), textcoords='offset points', fontsize=9, va='center', ha='left', color='#000000', clip_on=False)
 
-    ax.set_title('EIA Net Generation — Online SARIMAX one-step forecast Jan–Aug 2025')
-    ax.set_xlabel('')
-    ax.set_ylabel('')
-    save_fig("eia_streaming_last.png")
+        ax.set_title('EIA Net Generation — Online SARIMAX one-step forecast Jan–Aug 2025')
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        save_fig("eia_streaming_last.png")
 
 if __name__ == "__main__":
     main()
