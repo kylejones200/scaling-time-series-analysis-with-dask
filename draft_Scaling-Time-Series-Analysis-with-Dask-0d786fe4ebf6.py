@@ -55,7 +55,7 @@ daily_means = df.groupby(df.timestamp.dt.date).value.mean()
 daily_means.compute()
 
 # Fill missing values with the previous value
-df_filled = df.fillna(method="ffill")
+df_filled = df.ffill()
 
 # Compute results
 df_filled.compute()
