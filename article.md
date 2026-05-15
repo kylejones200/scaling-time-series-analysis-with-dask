@@ -1,3 +1,7 @@
+---
+canonical_link: "https://medium.com/p/0d786fe4ebf6"
+---
+
 # Scaling Time Series Analysis with Dask Introduction
 
 ### Scaling Time Series Analysis with Dask 
@@ -109,5 +113,3 @@ Dask provides a scalable solution for handling large time series datasets by ena
 - Seamless integration with pandas, Parquet, and machine learning libraries.
 
 By leveraging Dask, time series analysts can work with billions of data points without the memory limitations of pandas.
-
-\ [View original.](https://medium.com/p/0d786fe4ebf6)
