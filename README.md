@@ -18,22 +18,20 @@ All demos use **synthetic** minute-level data so nothing needs to be downloaded.
 ## Quick start
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python main.py --quick
+uv sync
+uv run python main.py --quick
 ```
 
 Full-size run (default ~500k rows from `config.yaml`):
 
 ```bash
-python main.py
+uv run python main.py
 ```
 
 With a local distributed scheduler:
 
 ```bash
-python main.py --distributed
+uv run python main.py --distributed
 ```
 
 Generated Parquet files are written under `data/` (gitignored).
@@ -44,7 +42,7 @@ Generated Parquet files are written under `data/` (gitignored).
 |------|---------|
 | `main.py` | Entry point; runs all article-aligned demos |
 | `config.yaml` | Row count, partitions, resample/rolling settings |
-| `requirements.txt` | Python dependencies |
+| `pyproject.toml` / `uv.lock` | Dependencies (managed with [uv](https://docs.astral.sh/uv/)) |
 | `article.md` | Medium article export |
 | `data/` | Created at runtime (Parquet outputs) |
 
