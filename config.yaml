@@ -1,13 +1,20 @@
 data:
   seed: 42
-  freq: MS
-model:
-  alpha: 0.06
+  start: "2023-01-01"
+  n_rows: 500_000
+  freq: "1min"
+  timestamp_column: timestamp
+  value_column: value
+  npartitions: 10
+
+dask:
+  use_distributed: false
+  n_workers: 4
+
+operations:
+  resample_freq: "D"
+  rolling_window: 7
+
 output:
-  figures_dir: images
-  figure_format: png
-  figure_dpi: 100
-  font_family: serif
-  figsize:
-  - 10
-  - 5
+  data_dir: data
+  parquet_subdir: energy_data
