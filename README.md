@@ -59,3 +59,11 @@ Edit `config.yaml` to change:
 
 - For very large production workloads, point `main.py` at your own CSV or Parquet paths using the same Dask patterns shown in `demo_energy_case_study` and `demo_parquet`.
 - Optional ML (`dask-ml`, XGBoost) from the article is not included here to keep installs light; add those packages if you extend the repo for forecasting.
+
+## Disclaimer
+
+Educational/demo code only. Not financial, safety, or engineering advice. Use at your own risk. Verify results independently before any production or operational use.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
