@@ -4,6 +4,14 @@ Companion repository for [Scaling Time Series Analysis with Dask](https://medium
 
 The article export lives in `article.md`. Runnable examples are in `main.py`.
 
+## Business context
+
+When dealing with time series data, the scale of data can quickly exceed the capabilities of a single machine. Traditional tools like pandas work well for small to moderately sized datasets, but they struggle when the data exceeds available memory. This is where Dask comes in.
+
+Dask is a parallel computing framework that extends pandas, NumPy, and scikit-learn to handle larger-than-memory datasets efficiently. It enables distributed processing, making it a powerful tool for time series analysis at scale.
+
+- Why Dask is essential for time series data. - How Dask compares to pandas. - Key Dask functions for time series. - Real-world examples of Dask for large-scale time series processing.
+
 ## What this demonstrates
 
 - Converting a pandas time series to a partitioned Dask DataFrame
