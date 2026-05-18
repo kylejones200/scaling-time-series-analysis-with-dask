@@ -5,9 +5,15 @@ description = "Companion code for scaling time series analysis with Dask"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "pydantic>=2.10.0",
+    "pytest>=8.0",
     "dask[complete]>=2024.1.0",
     "numpy>=2.4.4",
     "pandas>=3.0.3",
     "pyarrow>=14.0.0",
     "pyyaml>=6.0.3",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

@@ -36,9 +36,7 @@ def build_synthetic_series(config: dict, n_rows: int | None = None) -> pd.DataFr
     rng = np.random.default_rng(data_cfg.get("seed", 42))
     ts_col = data_cfg["timestamp_column"]
     val_col = data_cfg["value_column"]
-    timestamps = pd.date_range(
-        data_cfg["start"], periods=n, freq=data_cfg["freq"]
-    )
+    timestamps = pd.date_range(data_cfg["start"], periods=n, freq=data_cfg["freq"])
     # Smooth trend + noise; occasional gaps for fillna demo
     t = np.arange(n, dtype=float)
     values = 50 + 0.001 * t + 5 * np.sin(t / (24 * 60)) + rng.normal(0, 2, n)
@@ -52,19 +50,18 @@ def to_dask(pdf: pd.DataFrame, npartitions: int) -> dd.DataFrame:
     return dd.from_pandas(pdf, npartitions=npartitions)
 
 
-def demo_pandas_vs_dask(pdf: pd.DataFrame, ddf: dd.DataFrame, ts_col: str, val_col: str) -> None:
+def demo_pandas_vs_dask(
+    pdf: pd.DataFrame, ddf: dd.DataFrame, ts_col: str, val_col: str
+) -> None:
     """Compare wall time for a daily mean on the same synthetic data."""
     logger.info("--- Pandas vs Dask (daily mean) ---")
-
     t0 = time.perf_counter()
     pandas_daily = pdf.set_index(ts_col)[val_col].resample("D").mean()
     _ = pandas_daily  # materialized eagerly
     pandas_sec = time.perf_counter() - t0
-
     t0 = time.perf_counter()
     dask_daily = ddf.set_index(ts_col)[val_col].resample("D").mean().compute()
     dask_sec = time.perf_counter() - t0
-
     logger.info("Partitions: %s", ddf.npartitions)
     logger.info("Pandas: %.3fs | Dask: %.3fs", pandas_sec, dask_sec)
     logger.info("Last 3 daily means (Dask):\n%s", dask_daily.tail(3))
@@ -133,7 +130,6 @@ def write_energy_parquet(output_dir: Path, config: dict, n_meters: int = 4) -> P
     rng = np.random.default_rng(data_cfg.get("seed", 42))
     energy_dir = output_dir / config["output"]["parquet_subdir"]
     energy_dir.mkdir(parents=True, exist_ok=True)
-
     rows_per_meter = max(10_000, int(data_cfg["n_rows"]) // n_meters)
     for meter_id in range(n_meters):
         timestamps = pd.date_range(
@@ -142,7 +138,11 @@ def write_energy_parquet(output_dir: Path, config: dict, n_meters: int = 4) -> P
         base = 2.0 + 0.3 * meter_id
         consumption = base + rng.normal(0, 0.2, rows_per_meter)
         pdf = pd.DataFrame(
-            {ts_col: timestamps, "meter_id": f"meter_{meter_id}", "consumption": consumption}
+            {
+                ts_col: timestamps,
+                "meter_id": f"meter_{meter_id}",
+                "consumption": consumption,
+            }
         )
         path = energy_dir / f"meter_{meter_id}.parquet"
         pdf.to_parquet(path, engine="pyarrow", index=False)
@@ -208,34 +208,26 @@ def main() -> None:
     )
     args = parse_args()
     config = load_config(args.config)
-
     output_dir = args.output_dir or Path(config["output"]["data_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
-
     n_rows = 50_000 if args.quick else None
     pdf = build_synthetic_series(config, n_rows=n_rows)
     ddf = to_dask(pdf, int(config["data"]["npartitions"]))
-
     data_cfg = config["data"]
     ts_col = data_cfg["timestamp_column"]
     val_col = data_cfg["value_column"]
-
     logger.info("Synthetic series: %s rows, %s partitions", len(pdf), ddf.npartitions)
     logger.info("Dask preview:\n%s", ddf.head(3, compute=True))
-
     demo_pandas_vs_dask(pdf, ddf, ts_col, val_col)
     demo_resample(ddf, config)
     demo_rolling(ddf, config)
     demo_groupby(ddf, config)
     demo_missing_data(ddf, config)
-
     parquet_path = output_dir / "timeseries.parquet"
     reloaded = demo_parquet(ddf, parquet_path)
     logger.info("Reloaded head:\n%s", reloaded.head(3, compute=True))
-
     energy_dir = write_energy_parquet(output_dir, config)
     demo_energy_case_study(energy_dir, config)
-
     use_distributed = args.distributed or config["dask"].get("use_distributed", False)
     if use_distributed:
         run_distributed_demo(energy_dir, config)
